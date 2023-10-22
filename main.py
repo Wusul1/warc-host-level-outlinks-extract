@@ -10,7 +10,8 @@ def extract_urls_from_warc(warc_path):
     total_urls = 0
     with open(warc_path, 'rb') as warc_file:
         for record in ArchiveIterator(warc_file):
-            if record.rec_type == 'response' and 'text/html' in record.http_headers.get('Content-Type', ''):
+            try:
+              if record.rec_type == 'response' and 'text/html' in record.http_headers.get('Content-Type', ''):
                 total_htmls += 1
                 html_content = record.content_stream().read()
                 soup = BeautifulSoup(html_content, 'html.parser')
@@ -24,6 +25,8 @@ def extract_urls_from_warc(warc_path):
                 if processed_htmls % 100 == 0:
                     print(f"Processed {processed_htmls} HTMLs")
                     print(f"Total URLs found so far: {total_urls}")
+            except:
+                continue
     print(f"Done")
     print(f"Total HTMLs processed: {total_htmls}")
     print(f"Total URLs found: {total_urls}")
@@ -52,4 +55,5 @@ output_file = 'hosts_from_warc.txt'
 write_urls_to_file(urls, output_file)
 
 print("Host level URLs have been written to", output_file)
+
 
